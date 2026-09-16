@@ -17,7 +17,7 @@ app = FastAPI(title="AI Wall & Object Visualizer Engine")
 #ui test 2
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Izinkan semua asal UI mengakses API ini
+    allow_origins=["*"], # semua UI mengakses API
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,7 +34,7 @@ async def process_multi_objects(
     # [{"id": 1, "is_wall": true, "box": [x1, y1, x2, y2], "target_hex": "#3498DB"}, ...]
     boxes_data: str = Form(...)
 ):
-    # Validasi content_type dilonggarkan agar foto kamera Android tidak ditolak
+    # pelonggaran Validasi content_type -> foto kamera Android tidak ditolak
     if file.content_type and not (file.content_type.startswith("image/") or file.content_type == "application/octet-stream"):
         raise HTTPException(status_code=400, detail="Format file harus berupa gambar.")
 
@@ -47,7 +47,7 @@ async def process_multi_objects(
         image_bytes = await file.read()
         try:
             pil_image = Image.open(io.BytesIO(image_bytes))
-            pil_image = ImageOps.exif_transpose(pil_image)  # Otomatis putar foto sesuai orientasi HP
+            pil_image = ImageOps.exif_transpose(pil_image)  # Otomatis putar frame sesuai orientasi HP
             rgb_image = pil_image.convert("RGB")
             img_bgr = cv2.cvtColor(np.array(rgb_image), cv2.COLOR_RGB2BGR)
         except Exception as e:
@@ -64,7 +64,7 @@ async def process_multi_objects(
             target_hex = item.get("target_hex", "#3498DB")
             x1, y1, x2, y2 = item.get("box", [0, 0, img_w, img_h])
 
-            # Pastikan koordinat dalam batas citra
+            # validasi koordinat dalam batas
             x1, y1 = max(0, int(x1)), max(0, int(y1))
             x2, y2 = min(img_w, int(x2)), min(img_h, int(y2))
             box_w, box_h = max(1, x2 - x1), max(1, y2 - y1)
@@ -77,7 +77,7 @@ async def process_multi_objects(
                 verbose=False
             )
 
-            # Jika terdeteksi mask, lakukan blending
+            # Jika terdeteksi mask -> blending
             if results[0].masks is not None and len(results[0].masks.data) > 0:
                 raw_mask = results[0].masks.data[0].cpu().numpy().astype(np.uint8) * 255
                 obj_mask = cv2.resize(raw_mask, (img_w, img_h), interpolation=cv2.INTER_NEAREST)
@@ -94,13 +94,13 @@ async def process_multi_objects(
                 "material_estimation": None
             }
 
-            # 4. Jika Objek adalah Dinding, Tambahkan Estimasi Dimensi & Jumlah Cat
+            # 4. Objek adalah Dinding -> Tambahkan Estimasi Dimensi & Jumlah Cat
             if is_wall:
                 report["material_estimation"] = calculate_wall_materials(box_w, box_h, img_w, img_h)
 
             analysis_reports.append(report)
 
-        # 5. Encode Citra Hasil ke Base64
+        # 5. Encode Hasil ke Base64
         _, encoded_img = cv2.imencode(".jpg", result_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
         img_base64 = base64.b64encode(encoded_img.tobytes()).decode('utf-8')
 
