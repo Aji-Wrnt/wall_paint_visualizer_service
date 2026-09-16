@@ -77,7 +77,7 @@ def calculate_wall_materials(box_w_px: int, box_h_px: int, img_w: int, img_h: in
     # Rata-rata tinggi ruangan interior standar = 2.8 - 3.0 meter.
 
     # Estimasi tinggi referensi frame ruangan (asumsi tinggi foto vertikal mencakup ~2.8 meter dinding)
-    pixel_per_meter = img_h / 2.8
+    pixel_per_meter = img_h / 3
 
     est_width_m = round(box_w_px / pixel_per_meter, 2)
     est_height_m = round(box_h_px / pixel_per_meter, 2)

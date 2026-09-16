@@ -17,7 +17,7 @@ def hex_to_bgr(hex_str: str) -> tuple:
 
 def apply_realistic_color(image_bgr: np.ndarray, mask: np.ndarray, target_hex: str) -> np.ndarray:
     
-    # Menerapkan warna baru pada area mask (dinding atau objek) secara realistis.
+    # Menerapkan warna baru pada area mask secara realistis.
     # Mempertahankan channel L (Luminance) untuk menjaga detail tekstur, highlight,
     # dan bayangan alami, lalu mengganti channel A dan B (Chrominance).
    
