@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Visualizer - Interactive Tester</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 24px; background-color: #f0f2f5; color: #333; margin: 0; }
+        h2 { margin-top: 0; color: #1e293b; }
+        .main-layout { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+        
+        /* Area Canvas */
+        .canvas-card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: inline-block; }
+        .canvas-wrapper { position: relative; border: 2px dashed #cbd5e1; border-radius: 8px; overflow: hidden; background: #fafafa; }
+        canvas { display: block; max-width: 650px; max-height: 800px; cursor: default; }
+        canvas.drawing-active { cursor: crosshair; }
+
+        /* Panel Kontrol */
+        .control-panel { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 380px; }
+        .section-box { border: 1px solid #e2e8f0; padding: 14px; border-radius: 8px; margin-bottom: 16px; background: #f8fafc; }
+        .section-title { font-weight: 700; font-size: 14px; margin-bottom: 10px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px 14px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: #64748b; color: white; margin-top: 6px; }
+        .btn-secondary:hover { background: #475569; }
+        .btn-danger { background: #ef4444; color: white; margin-top: 6px; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-process { background: #16a34a; color: white; font-size: 16px; padding: 12px; margin-top: 10px; }
+        .btn-process:hover { background: #15803d; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .form-row { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .radio-group { display: flex; gap: 12px; }
+        .color-picker-wrapper { display: flex; align-items: center; gap: 10px; }
+        input[type="color"] { border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; padding: 0; background: none; }
+
+        /* Box Items List */
+        .box-list { max-height: 150px; overflow-y: auto; margin-top: 10px; }
+        .box-item { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; }
+        .badge-color { width: 16px; height: 16px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 6px; }
+
+        /* Status & Result */
+        #status-msg { font-size: 13px; font-weight: 600; color: #2563eb; margin-top: 6px; min-height: 18px; }
+        #loading { display: none; color: #ea580c; font-weight: bold; margin-top: 10px; text-align: center; }
+        #results-panel { margin-top: 24px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: none; width: 100%; max-width: 1060px; }
+        .report-card { border-left: 5px solid #2563eb; padding: 14px; margin-bottom: 14px; background: #f8fafc; border-radius: 0 8px 8px 0; }
+        #output-image { max-width: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15); margin-top: 12px; }
+    </style>
+</head>
+<body>
+
+<h2>AI Multi-Object Visualizer & Material Estimator</h2>
+
+<div class="main-layout">
+    <!-- Area Gambar -->
+    <div class="canvas-card">
+        <div class="canvas-wrapper">
+            <canvas id="imgCanvas"></canvas>
+        </div>
+        <div id="status-msg">Silakan pilih foto ruangan untuk memulai.</div>
+    </div>
+
+    <!-- Panel Kontrol -->
+    <div class="control-panel">
+        <!-- 1. Upload Foto -->
+        <div class="section-box">
+            <div class="section-title">1. Sumber Foto</div>
+            <input type="file" id="imageInput" accept="image/*" class="btn btn-secondary">
+        </div>
+
+        <!-- 2. Pengaturan Warna & Tambah Kotak -->
+        <div class="section-box">
+            <div class="section-title">2. Tambah Penanda Objek</div>
+            
+            <div class="form-row">
+                <label><strong>Tipe:</strong></label>
+                <div class="radio-group">
+                    <label><input type="radio" name="objType" value="wall" checked> Dinding</label>
+                    <label><input type="radio" name="objType" value="other"> Benda Lain</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label><strong>Warna Pilihan:</strong></label>
+                <div class="color-picker-wrapper">
+                    <span id="hexLabel" style="font-family:monospace; font-weight:bold;">#3498DB</span>
+                    <input type="color" id="targetColor" value="#3498DB">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="btnStartDraw" disabled>
+                ➕ Tambah Kotak Objek
+            </button>
+            <div id="draw-instruction" style="display:none; font-size:12px; color:#ea580c; margin-top:6px; font-weight:600;">
+                👉 Klik-tahan & seret mouse pada foto untuk membuat kotak.
+            </div>
+        </div>
+
+        <!-- 3. Kelola Kotak Aktif -->
+        <div class="section-box">
+            <div class="section-title">3. Daftar Kotak Penanda (<span id="boxCount">0</span>)</div>
+            <div class="box-list" id="boxListContainer">
+                <div style="color:#94a3b8; font-size:13px; font-style:italic;">Belum ada kotak ditambahkan.</div>
+            </div>
+            
+            <button class="btn btn-secondary" id="btnUndo" disabled>↩ Undo Kotak Terakhir</button>
+            <button class="btn btn-danger" id="btnClear" disabled>🗑 Hapus Semua Kotak</button>
+        </div>
+
+        <!-- 4. Tombol Eksekusi -->
+        <button class="btn btn-process" id="btnProcess" disabled>🚀 Proses Visualisasi</button>
+        <div id="loading">⏳ Memproses AI & Menghitung Resep...</div>
+    </div>
+</div>
+
+<!-- Panel Hasil Output -->
+<div id="results-panel">
+    <h3>Hasil Visualisasi & Rekomendasi Material</h3>
+    <img id="output-image" alt="Hasil render visualisasi">
+    <div id="report-container" style="margin-top: 16px;"></div>
+</div>
+
+<script>
+    const imageInput = document.getElementById('imageInput');
+    const canvas = document.getElementById('imgCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusMsg = document.getElementById('status-msg');
+    
+    const btnStartDraw = document.getElementById('btnStartDraw');
+    const btnUndo = document.getElementById('btnUndo');
+    const btnClear = document.getElementById('btnClear');
+    const btnProcess = document.getElementById('btnProcess');
+    const targetColorInput = document.getElementById('targetColor');
+    const hexLabel = document.getElementById('hexLabel');
+    const drawInstruction = document.getElementById('draw-instruction');
+    const boxListContainer = document.getElementById('boxListContainer');
+    const boxCountLabel = document.getElementById('boxCount');
+
+    let sourceImage = new Image();
+    let imageFile = null;
+    let isReadyToDraw = false;
+    let isDrawing = false;
+    let startX = 0, startY = 0;
+    let boundingBoxes = [];
+
+    // Sync HEX label teks saat pilih warna
+    targetColorInput.addEventListener('input', (e) => {
+        hexLabel.textContent = e.target.value.toUpperCase();
+    });
+
+    // 1. Upload & Load Foto ke Canvas
+    imageInput.addEventListener('change', (e) => {
+        imageFile = e.target.files[0];
+        if (!imageFile) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            sourceImage.onload = function() {
+                const scale = Math.min(650 / sourceImage.width, 1);
+                canvas.width = sourceImage.width * scale;
+                canvas.height = sourceImage.height * scale;
+                boundingBoxes = [];
+                updateUIState();
+                drawCanvas();
+                statusMsg.textContent = "Foto siap. Klik tombol '+ Tambah Kotak Objek' untuk menandai.";
+            }
+            sourceImage.src = event.target.result;
+        }
+        reader.readAsDataURL(imageFile);
+    });
+
+    // Render Ulang Canvas
+    function drawCanvas() {
+        if (!sourceImage.src) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(sourceImage, 0, 0, canvas.width, canvas.height);
+
+        boundingBoxes.forEach((boxObj, idx) => {
+            ctx.strokeStyle = boxObj.target_hex;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(boxObj.rect.x, boxObj.rect.y, boxObj.rect.w, boxObj.rect.h);
+
+            // Background Badge Label
+            const labelText = `#${idx + 1} ${boxObj.is_wall ? 'Dinding' : 'Benda'}`;
+            ctx.font = "bold 13px Segoe UI, sans-serif";
+            const textWidth = ctx.measureText(labelText).width;
+            
+            ctx.fillStyle = boxObj.target_hex;
+            ctx.fillRect(boxObj.rect.x, boxObj.rect.y - 22, textWidth + 12, 22);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(labelText, boxObj.rect.x + 6, boxObj.rect.y - 6);
+        });
+    }
+
+    // Aktifkan Mode Menggambar Kotak
+    btnStartDraw.addEventListener('click', () => {
+        isReadyToDraw = true;
+        canvas.classList.add('drawing-active');
+        drawInstruction.style.display = 'block';
+        statusMsg.textContent = "Mode Menggambar Aktif: Seret mouse pada area dinding/benda.";
+    });
+
+    // Event Mouse Canvas
+    canvas.addEventListener('mousedown', (e) => {
+        if (!isReadyToDraw) return;
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const curX = e.clientX - rect.left;
+        const curY = e.clientY - rect.top;
+
+        drawCanvas();
+
+        ctx.strokeStyle = targetColorInput.value;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeRect(startX, startY, curX - startX, curY - startY);
+        ctx.setLineDash([]);
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+        if (!isDrawing) return;
+        isDrawing = false;
+        isReadyToDraw = false;
+        canvas.classList.remove('drawing-active');
+        drawInstruction.style.display = 'none';
+
+        const rect = canvas.getBoundingClientRect();
+        const endX = e.clientX - rect.left;
+        const endY = e.clientY - rect.top;
+
+        const isWall = document.querySelector('input[name="objType"]:checked').value === "wall";
+        const colorHex = targetColorInput.value;
+
+        const scaleX = sourceImage.width / canvas.width;
+        const scaleY = sourceImage.height / canvas.height;
+
+        const x1 = Math.min(startX, endX) * scaleX;
+        const y1 = Math.min(startY, endY) * scaleY;
+        const x2 = Math.max(startX, endX) * scaleX;
+        const y2 = Math.max(startY, endY) * scaleY;
+
+        const width = Math.abs(endX - startX);
+        const height = Math.abs(endY - startY);
+
+        if (width > 15 && height > 15) {
+            boundingBoxes.push({
+                id: boundingBoxes.length + 1,
+                is_wall: isWall,
+                target_hex: colorHex,
+                box: [x1, y1, x2, y2],
+                rect: { x: Math.min(startX, endX), y: Math.min(startY, endY), w: width, h: height }
+            });
+            statusMsg.textContent = `Kotak #${boundingBoxes.length} berhasil dibuat. Tambah lagi atau klik Proses.`;
+        } else {
+            statusMsg.textContent = "Kotak terlalu kecil, dibatalkan.";
+        }
+
+        updateUIState();
+        drawCanvas();
+    });
+
+    // Tombol Undo & Clear
+    btnUndo.addEventListener('click', () => {
+        if (boundingBoxes.length > 0) {
+            boundingBoxes.pop();
+            // Re-index ID
+            boundingBoxes.forEach((b, i) => b.id = i + 1);
+            updateUIState();
+            drawCanvas();
+            statusMsg.textContent = "Kotak terakhir berhasil di-undo.";
+        }
+    });
+
+    btnClear.addEventListener('click', () => {
+        if (confirm("Hapus semua kotak penanda yang sudah dibuat?")) {
+            boundingBoxes = [];
+            updateUIState();
+            drawCanvas();
+            statusMsg.textContent = "Semua kotak penanda dihapus.";
+        }
+    });
+
+    // Update Tampilan List & Status Tombol
+    function updateUIState() {
+        const hasImage = !!sourceImage.src;
+        const hasBoxes = boundingBoxes.length > 0;
+
+        btnStartDraw.disabled = !hasImage;
+        btnUndo.disabled = !hasBoxes;
+        btnClear.disabled = !hasBoxes;
+        btnProcess.disabled = !hasBoxes;
+
+        boxCountLabel.textContent = boundingBoxes.length;
+
+        if (!hasBoxes) {
+            boxListContainer.innerHTML = `<div style="color:#94a3b8; font-size:13px; font-style:italic;">Belum ada kotak ditambahkan.</div>`;
+            return;
+        }
+
+        boxListContainer.innerHTML = boundingBoxes.map(b => `
+            <div class="box-item">
+                <span>
+                    <span class="badge-color" style="background:${b.target_hex}"></span>
+                    <strong>#${b.id}</strong> (${b.is_wall ? 'Dinding' : 'Benda'})
+                </span>
+                <span style="font-family:monospace; font-weight:bold;">${b.target_hex.toUpperCase()}</span>
+            </div>
+        `).join('');
+    }
+
+    // 4. Kirim Request ke Backend AI
+    btnProcess.addEventListener('click', async () => {
+        if (!imageFile || boundingBoxes.length === 0) return;
+
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('results-panel').style.display = 'none';
+        btnProcess.disabled = true;
+
+        const formData = new FormData();
+        formData.append("file", imageFile);
+
+        const payloadBoxes = boundingBoxes.map(b => ({
+            id: b.id,
+            is_wall: b.is_wall,
+            target_hex: b.target_hex,
+            box: b.box
+        }));
+        formData.append("boxes_data", JSON.stringify(payloadBoxes));
+
+        try {
+            const response = await fetch("http://127.0.0.1:8000/api/v1/process-multi-objects", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) throw new Error("Gagal memproses gambar pada server AI.");
+
+            const result = await response.json();
+
+            document.getElementById('output-image').src = result.processed_image_base64;
+
+            const reportContainer = document.getElementById('report-container');
+            reportContainer.innerHTML = '';
+
+            result.reports.forEach(rep => {
+                let html = `
+                    <div class="report-card" style="border-left-color:${rep.chosen_hex}">
+                        <h4 style="margin:0 0 8px 0;">
+                            <span class="badge-color" style="background:${rep.chosen_hex}"></span>
+                            Objek #${rep.object_id} - ${rep.is_wall ? 'Dinding' : 'Benda'} 
+                            <span style="font-family:monospace; font-size:13px;">(${rep.chosen_hex})</span>
+                        </h4>
+                `;
+
+                if (rep.is_wall && rep.material_estimation) {
+                    const mat = rep.material_estimation;
+                    html += `
+                        <p style="margin:4px 0;"><strong>📏 Estimasi Ukuran:</strong> ${mat.estimated_width_m} m × ${mat.estimated_height_m} m (Luas: <strong>${mat.estimated_area_m2} m²</strong>)</p>
+                        <p style="margin:4px 0;"><strong>🪣 Kebutuhan Cat:</strong> ${mat.paint_needed_ml} mL / ${mat.paint_needed_liters} Liter (Rekomendasi: <strong>${mat.recommended_cans}</strong>)</p>
+                    `;
+                }
+
+                if (rep.paint_recipes && rep.paint_recipes.length > 0) {
+                    html += `<div style="margin-top:8px;"><strong>🎨 Resep Campuran Cat (Toko Bangunan):</strong></div>`;
+                    rep.paint_recipes.forEach(recipe => {
+                        html += `<div style="font-size:13px; margin-top:4px;"><em>${recipe.name}:</em></div><ul style="margin:4px 0 8px 20px; font-size:13px;">`;
+                        recipe.components.forEach(comp => {
+                            html += `<li>${comp.paint} : <strong>${comp.percentage}%</strong></li>`;
+                        });
+                        html += `</ul>`;
+                    });
+                }
+
+                html += `</div>`;
+                reportContainer.innerHTML += html;
+            });
+
+            document.getElementById('results-panel').style.display = 'block';
+            statusMsg.textContent = "Visualisasi dan perhitungan berhasil!";
+
+        } catch (error) {
+            alert("Terjadi kesalahan: " + error.message);
+            statusMsg.textContent = "Gagal memproses gambar.";
+        } finally {
+            document.getElementById('loading').style.display = 'none';
+            btnProcess.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

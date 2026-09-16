@@ -1,0 +1,19 @@
+# File Model AI & Python
+__pycache__/
+*.pyc
+*.pt
+*.pth
+weights/
+.env
+
+# Folder Rakitan Flutter & Android
+.dart_tool/
+build/
+android/.gradle
+android/app/build/
+local.properties
+*.apk
+
+# Editor
+.vscode/
+.idea/
