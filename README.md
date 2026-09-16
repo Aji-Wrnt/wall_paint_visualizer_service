@@ -86,7 +86,7 @@ The system utilizes **FastSAM (Fast Segment Anything)** for zero-shot instance s
     3. Run on a connected Android device:
         - flutter run
     4. Open the in-app Settings menu and configure the server URL:
-        - http://<YOUR_LOCAL_IP>:8000/api/v1/process-multi-objects
+        - http://<local_ip>:8000/api/v1/process-multi-objects
     
 ## Licences
 This project is licensed under the MIT License - see the LICENSE file for details.
