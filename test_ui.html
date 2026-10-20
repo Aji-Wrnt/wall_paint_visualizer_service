@@ -92,10 +92,10 @@
             </div>
 
             <button class="btn btn-primary" id="btnStartDraw" disabled>
-                ➕ Tambah Kotak Objek
+                Tambah Kotak Objek
             </button>
             <div id="draw-instruction" style="display:none; font-size:12px; color:#ea580c; margin-top:6px; font-weight:600;">
-                👉 Klik-tahan & seret mouse pada foto untuk membuat kotak.
+                Klik-tahan dan seret mouse pada foto untuk membuat kotak.
             </div>
         </div>
 
@@ -107,12 +107,12 @@
             </div>
             
             <button class="btn btn-secondary" id="btnUndo" disabled>↩ Undo Kotak Terakhir</button>
-            <button class="btn btn-danger" id="btnClear" disabled>🗑 Hapus Semua Kotak</button>
+            <button class="btn btn-danger" id="btnClear" disabled>Hapus Semua Kotak</button>
         </div>
 
         <!-- 4. Tombol Eksekusi -->
-        <button class="btn btn-process" id="btnProcess" disabled>🚀 Proses Visualisasi</button>
-        <div id="loading">⏳ Memproses AI & Menghitung Resep...</div>
+        <button class="btn btn-process" id="btnProcess" disabled>Proses Visualisasi</button>
+        <div id="loading">Memproses gambar dan menghitung resep...</div>
     </div>
 </div>
 
@@ -366,14 +366,14 @@
                 if (rep.is_wall && rep.material_estimation) {
                     const mat = rep.material_estimation;
                     html += `
-                        <p style="margin:4px 0;"><strong>📏 Estimasi Ukuran:</strong> ${mat.estimated_width_m} m × ${mat.estimated_height_m} m (Luas: <strong>${mat.estimated_area_m2} m²</strong>)</p>
-                        <p style="margin:4px 0;"><strong>🪣 Kebutuhan Cat:</strong> ${mat.paint_needed_ml} mL / ${mat.paint_needed_liters} Liter (Rekomendasi: <strong>${mat.recommended_cans}</strong>)</p>
-                        ${mat.estimated_total_cost_idr ? `<p style="margin:4px 0;"><strong>💰 Estimasi Biaya:</strong> Bahan Cat: ${mat.estimated_paint_cost_idr} | Jasa Tukang: ${mat.estimated_labor_cost_idr} (Total: <strong style="color:#16a34a;">${mat.estimated_total_cost_idr}</strong>)</p>` : ''}
+                        <p style="margin:4px 0;"><strong>Estimasi Ukuran:</strong> ${mat.estimated_width_m} m × ${mat.estimated_height_m} m (Luas: <strong>${mat.estimated_area_m2} m²</strong>)</p>
+                        <p style="margin:4px 0;"><strong>Kebutuhan Cat:</strong> ${mat.paint_needed_ml} mL / ${mat.paint_needed_liters} Liter (Rekomendasi: <strong>${mat.recommended_cans}</strong>)</p>
+                        ${mat.estimated_total_cost_idr ? `<p style="margin:4px 0;"><strong>Estimasi Biaya:</strong> Bahan Cat: ${mat.estimated_paint_cost_idr} | Jasa Tukang: ${mat.estimated_labor_cost_idr} (Total: <strong style="color:#16a34a;">${mat.estimated_total_cost_idr}</strong>)</p>` : ''}
                     `;
                 }
 
                 if (rep.paint_recipes && rep.paint_recipes.length > 0) {
-                    html += `<div style="margin-top:8px;"><strong>🎨 Resep Campuran Cat (Toko Bangunan):</strong></div>`;
+                    html += `<div style="margin-top:8px;"><strong>Resep Campuran Cat (Toko Bangunan):</strong></div>`;
                     rep.paint_recipes.forEach(recipe => {
                         html += `<div style="font-size:13px; margin-top:4px;"><em>${recipe.name}:</em></div><ul style="margin:4px 0 8px 20px; font-size:13px;">`;
                         recipe.components.forEach(comp => {

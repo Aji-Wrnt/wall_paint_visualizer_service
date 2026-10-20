@@ -34,7 +34,7 @@ async def process_multi_objects(
     # [{"id": 1, "is_wall": true, "box": [x1, y1, x2, y2], "target_hex": "#3498DB"}, ...]
     boxes_data: str = Form(...)
 ):
-    # pelonggaran Validasi content_type -> foto kamera Android tidak ditolak
+    # Pelonggaran validasi content_type agar foto kamera Android tidak ditolak
     if file.content_type and not (file.content_type.startswith("image/") or file.content_type == "application/octet-stream"):
         raise HTTPException(status_code=400, detail="Format file harus berupa gambar.")
 
@@ -77,7 +77,7 @@ async def process_multi_objects(
                 verbose=False
             )
 
-            # Jika terdeteksi mask -> blending
+            # Terapkan pewarnaan jika mask segmentasi terdeteksi
             if results[0].masks is not None and len(results[0].masks.data) > 0:
                 raw_mask = results[0].masks.data[0].cpu().numpy().astype(np.uint8) * 255
                 obj_mask = cv2.resize(raw_mask, (img_w, img_h), interpolation=cv2.INTER_NEAREST)
@@ -94,7 +94,7 @@ async def process_multi_objects(
                 "material_estimation": None
             }
 
-            # 4. Objek adalah Dinding -> Tambahkan Estimasi Dimensi & Jumlah Cat
+            # 4. Jika objek adalah dinding, tambahkan estimasi dimensi dan material cat
             if is_wall:
                 report["material_estimation"] = calculate_wall_materials(box_w, box_h, img_w, img_h)
 

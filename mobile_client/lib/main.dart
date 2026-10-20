@@ -238,17 +238,17 @@ class _VisualizerScreenState extends State<VisualizerScreen> {
                             style: const TextStyle(fontWeight: FontWeight.bold)),
                         if (isWall && mat != null) ...[
                           const Divider(),
-                          Text("📏 Ukuran: ${mat["estimated_width_m"]}m x ${mat["estimated_height_m"]}m (${mat["estimated_area_m2"]} m²)"),
-                          Text("🪣 Kebutuhan: ${mat["paint_needed_ml"]} mL / ${mat["paint_needed_liters"]} Liter (${mat["recommended_cans"]})"),
+                          Text("Ukuran: ${mat["estimated_width_m"]}m x ${mat["estimated_height_m"]}m (${mat["estimated_area_m2"]} m²)"),
+                          Text("Kebutuhan: ${mat["paint_needed_ml"]} mL / ${mat["paint_needed_liters"]} Liter (${mat["recommended_cans"]})"),
                           if (mat["estimated_total_cost_idr"] != null)
-                            Text("💰 Biaya: Cat ${mat["estimated_paint_cost_idr"]} + Tukang ${mat["estimated_labor_cost_idr"]} (Total: ${mat["estimated_total_cost_idr"]})",
+                            Text("Biaya: Cat ${mat["estimated_paint_cost_idr"]} + Tukang ${mat["estimated_labor_cost_idr"]} (Total: ${mat["estimated_total_cost_idr"]})",
                                 style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
                         ],
                         if (recipes != null && recipes.isNotEmpty) ...[
                           const Divider(),
-                          Text("🎨 Resep: ${recipes[0]["name"]}", style: const TextStyle(fontWeight: FontWeight.w600)),
+                          Text("Resep: ${recipes[0]["name"]}", style: const TextStyle(fontWeight: FontWeight.w600)),
                           ...((recipes[0]["components"] as List<dynamic>).map((c) =>
-                              Text(" • ${c["paint"]}: ${c["percentage"]}%", style: const TextStyle(fontSize: 13)))),
+                              Text(" - ${c["paint"]}: ${c["percentage"]}%", style: const TextStyle(fontSize: 13)))),
                         ]
                       ],
                     ),
