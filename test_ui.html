@@ -368,6 +368,7 @@
                     html += `
                         <p style="margin:4px 0;"><strong>📏 Estimasi Ukuran:</strong> ${mat.estimated_width_m} m × ${mat.estimated_height_m} m (Luas: <strong>${mat.estimated_area_m2} m²</strong>)</p>
                         <p style="margin:4px 0;"><strong>🪣 Kebutuhan Cat:</strong> ${mat.paint_needed_ml} mL / ${mat.paint_needed_liters} Liter (Rekomendasi: <strong>${mat.recommended_cans}</strong>)</p>
+                        ${mat.estimated_total_cost_idr ? `<p style="margin:4px 0;"><strong>💰 Estimasi Biaya:</strong> Bahan Cat: ${mat.estimated_paint_cost_idr} | Jasa Tukang: ${mat.estimated_labor_cost_idr} (Total: <strong style="color:#16a34a;">${mat.estimated_total_cost_idr}</strong>)</p>` : ''}
                     `;
                 }
 

@@ -1,19 +1,101 @@
-# File Model AI & Python
+# ==========================================
+# 1. Python & AI Service
+# ==========================================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# AI Model Weights & Checkpoints (Heavy Files)
 *.pt
 *.pth
+*.onnx
+*.tflite
+*.safetensors
+*.bin
+*.weights
+*.h5
 weights/
+**/FastSAM-s.pt
+
+# Ultralytics & Model Output Runs
+runs/
+output/
+outputs/
+*.log
+
+# Environment / Secret Configurations
 .env
+.env.*
+!.env.example
 
-# Folder Rakitan Flutter & Android
-.dart_tool/
-build/
-android/.gradle
-android/app/build/
-local.properties
-*.apk
+# ==========================================
+# 2. Flutter & Mobile (Android / iOS / Cross-platform)
+# ==========================================
+**/.dart_tool/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.pub/
 
-# Editor
-.vscode/
+# Android Specific inside Flutter
+**/android/.gradle/
+**/android/app/build/
+**/android/captures/
+**/local.properties
+**/*.apk
+**/*.aab
+**/*.jks
+**/*.keystore
+**/key.properties
+
+# iOS Specific inside Flutter
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+
+# ==========================================
+# 3. Node.js & Express (Main Backend Service)
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==========================================
+# 4. IDE, Editors & OS Files
+# ==========================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .idea/
+*.iml
+*.ipr
+*.iws
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
